@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  next-app:
+    container_name: store-dashboard
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    env_file:
+      - .env.dev
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    restart: always
+    ports:
+      - 3000:9000
+    networks:
+      - book_bar_network
+      
+networks:
+  book_bar_network:
