@@ -5,15 +5,15 @@ services:
     container_name: store-dashboard
     build:
       context: .
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile.local
     env_file:
-      - .env.dev
+      - .env.local
     volumes:
       - ./src:/app/src
       - ./public:/app/public
     restart: always
     ports:
-      - 3000:9000
+      - 3000:3000
     networks:
       - book_bar_network
       
