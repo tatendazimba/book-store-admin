@@ -1,4 +1,5 @@
-import { Box, Input } from '@mui/joy';
+import { Close } from '@mui/icons-material';
+import { Box, Input, Stack } from '@mui/joy';
 import * as React from 'react';
 
 type Props = {
@@ -24,6 +25,17 @@ export const Search: React.FC<Props> = ({ value, onChange }) => {
                 type="text"
                 value={searchValue}
                 onChange={(e) => handleChange(e.target.value)}
+                endDecorator={
+                    <Stack>
+                        <Close
+                            sx={{
+                                cursor: 'pointer',
+                                visibility: searchValue ? 'visible' : 'hidden',
+                            }}
+                            onClick={() => handleChange('')}
+                        />
+                    </Stack>
+                }
             />
         </Box>
     );
