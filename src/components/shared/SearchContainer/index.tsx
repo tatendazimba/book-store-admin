@@ -1,20 +1,26 @@
-import { FC, useEffect, useRef, useState } from "react";
-import { Search } from "../Search";
+import { FC, PropsWithChildren, ReactElement, cloneElement, useEffect, useRef, useState } from "react";
 import { request } from "@/utils/request";
-import { Box, Grid } from "@mui/joy";
+import { Box, Grid, Typography } from "@mui/joy";
 import { BooksResponse } from "@/types/BooksResponse";
 import { ImageCardVertical } from "../ImageCardVertical";
 import { Book } from "@/types/Book";
 
-type Props = {
+interface Props extends PropsWithChildren {
     onSearch?: () => void,
     onFound?: () => void,
     onNotFound?: () => void,
+    searchValue?: string,
+    children: ReactElement,
 }
 
+type LoadingStates = 'idle' | 'pending' | 'complete' | 'error';
+
 export const SearchContainer: FC<Props> = (props) => {
+    const { searchValue, children } = props;
+
     const abortControllerRef = useRef<AbortController | null>(null);
     const [searchResults, setSearchResults] = useState<BooksResponse | null>(null);
+    const [searching, setSearching] = useState<LoadingStates>('idle');
 
     useEffect(() => {
         return () => {
@@ -24,14 +30,21 @@ export const SearchContainer: FC<Props> = (props) => {
         };
     }, []);
 
-    const onChange = async (value: string) => {
+    useEffect(() => {
+        if (searchValue) {
+            search(searchValue);
+        }
+    }, [searchValue]);
+
+    const search = async (value: string) => {
         try {
+            setSearchResults(null);
+            
             if (!value) {
-                setSearchResults(null);
                 return;
             };
 
-            setSearchResults(null);
+            setSearching('pending');
 
             const baseUrl = `${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_URL}volumes?q=${value}`;
 
@@ -73,20 +86,26 @@ export const SearchContainer: FC<Props> = (props) => {
             };
 
             setSearchResults(booksResponse);
+            setSearching('complete');
         } catch (error: any) {
             console.error('error', error);
+            setSearching('error');
         }
+    }
+
+    const onChange = async (value: string) => {
+        search(value);
     }
 
     return (
         <Box>
-            <Search
-                onChange={onChange}
-            />
+            {
+                cloneElement(children, { onChange })
+            }
 
             <Grid container>
                 {
-                    searchResults?.items.map((item: Book) => (
+                    searchResults?.items?.map((item: Book) => (
                         <Grid
                             key={item.id}
                             xs={6}
