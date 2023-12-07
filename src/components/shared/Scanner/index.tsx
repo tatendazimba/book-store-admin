@@ -1,14 +1,21 @@
 "use client";
 import { FC, useEffect, useRef } from "react";
 
-import { Box } from "@mui/joy";
+import { Box, Stack, Typography } from "@mui/joy";
 
 import * as SDCCore from "scandit-web-datacapture-core";
 import * as SDCBarcode from "scandit-web-datacapture-barcode";
 
 import styles from './styles.module.scss';
+import { SearchContainer } from "../SearchContainer";
 
-export const ScanditScanner: FC = () => {
+type Props = {
+  onFound: (barcode: string) => void,
+}
+
+export const ScanditScanner: FC<Props> = (props) => {
+  const { onFound } = props;
+
   const dataViewRef = useRef<HTMLElement>(null);
 
   const barcodeCaptureListener = {
@@ -17,11 +24,11 @@ export const ScanditScanner: FC = () => {
       const [barcode] = recognizedBarcodes;
       let barcodeValue = barcode.data;
 
-      console.log('barcodeValue', barcodeValue);
+      onFound(barcodeValue as string);
 
       // disable scanning
-      // await barcodeCapture.setEnabled(false);
-      // await barcodeCapture.context?.frameSource?.switchToDesiredState(SDCCore.FrameSourceState.Off);
+      await barcodeCapture.setEnabled(false);
+      await barcodeCapture.context?.frameSource?.switchToDesiredState(SDCCore.FrameSourceState.Off);
     }
   };
 
@@ -122,13 +129,28 @@ export const ScanditScanner: FC = () => {
   }, []);
 
   return (
-    <Box
-    >
+    <Box>
       <Box
         className={styles.canvas_container}
         ref={dataViewRef}
-      />
+      >
+        <Stack
+          alignItems={'center'}
+          justifyContent={'center'}
+          sx={{
+            height: '100%',
+          }}
+        >
+          <Typography
+            component={'span'}
+            sx={{
+              color: 'white',
+            }}
+          >
+            Loading...
+          </Typography>
+        </Stack>
+      </Box>
     </Box>
-    
   )
 }
