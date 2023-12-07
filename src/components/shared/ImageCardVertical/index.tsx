@@ -37,6 +37,7 @@ export const ImageCardVertical: React.FC<Props> = props => {
 
                     <Typography
                         level="body-sm"
+                        noWrap
                     >
                         {description}
                     </Typography>
