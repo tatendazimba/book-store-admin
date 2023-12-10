@@ -19,7 +19,7 @@ export const SearchContainer: FC<Props> = (props) => {
     const { searchValue, children } = props;
 
     const abortControllerRef = useRef<AbortController | null>(null);
-    const [searchResults, setSearchResults] = useState<BooksResponse | null>(null);
+    const [searchResults, setSearchResults] = useState<Book[]>([]);
     const [searching, setSearching] = useState<LoadingStates>('idle');
 
     useEffect(() => {
@@ -61,31 +61,30 @@ export const SearchContainer: FC<Props> = (props) => {
             if (!response) {
                 return;
             }
+            
+            const kind = response.kind;
+            const totalItems = response.totalItems;
 
-            const booksResponse: BooksResponse = {
-                kind: response.kind,
-                totalItems: response.totalItems,
-                items: response.items.map((item: any) => ({
-                    authors: item.volumeInfo.authors,
-                    barcodes: item.volumeInfo.industryIdentifiers?.map((barcode: any) => ({
-                        type: barcode.type,
-                        identifier: barcode.identifier,
-                    })) || [],
-                    categories: item.volumeInfo.categories,
-                    description: item.volumeInfo.description,
-                    id: item.id,
-                    image: item.volumeInfo.imageLinks?.thumbnail,
-                    kind: item.kind,
-                    pageCount: item.volumeInfo.pageCount,
-                    publishedDate: item.volumeInfo.publishedDate,
-                    publisher: item.volumeInfo.publisher,
-                    searchInfo: item?.searchInfo?.textSnippet,
-                    subtitle: item.volumeInfo.subtitle,
-                    title: item.volumeInfo.title,
-                })),
-            };
+            const books: Book[] = response?.items?.map((item: any) => ({
+                authors: item.volumeInfo.authors,
+                barcodes: item.volumeInfo.industryIdentifiers?.map((barcode: any) => ({
+                    type: barcode.type,
+                    identifier: barcode.identifier,
+                })) || [],
+                categories: item.volumeInfo.categories,
+                description: item.volumeInfo.description,
+                id: item.id,
+                image: item.volumeInfo.imageLinks?.thumbnail,
+                kind: item.kind,
+                pageCount: item.volumeInfo.pageCount,
+                publishedDate: item.volumeInfo.publishedDate,
+                publisher: item.volumeInfo.publisher,
+                searchInfo: item?.searchInfo?.textSnippet,
+                subtitle: item.volumeInfo.subtitle,
+                title: item.volumeInfo.title,
+            })) || [];
 
-            setSearchResults(booksResponse);
+            setSearchResults(books);
             setSearching('complete');
         } catch (error: any) {
             console.error('error', error);
@@ -105,7 +104,7 @@ export const SearchContainer: FC<Props> = (props) => {
 
             <Grid container>
                 {
-                    searchResults?.items?.map((item: Book) => (
+                    searchResults?.map((item: Book) => (
                         <Grid
                             key={item.id}
                             xs={6}
