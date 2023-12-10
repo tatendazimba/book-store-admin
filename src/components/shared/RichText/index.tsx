@@ -3,11 +3,11 @@ import { Box } from '@mui/system';
 import { FC } from 'react';
 
 type Props = {
-    appendAllowedTags: string[],
-    onlyAllowedTags: string[],
-    truncateAt: number,
+    appendAllowedTags?: string[],
+    onlyAllowedTags?: string[],
+    truncateAt?: number,
     children: string,
-    truncateAfterLine: number,
+    truncateAfterLine?: number,
 };
 
 export const RichText: FC<Props> = (props) => {
