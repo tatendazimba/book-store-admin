@@ -14,6 +14,7 @@
     "@mui/icons-material": "^5.14.19",
     "@mui/joy": "^5.0.0-beta.15",
     "@mui/material": "^5.14.19",
+    "dompurify": "^3.0.6",
     "next": "14.0.3",
     "react": "^18",
     "react-dom": "^18",
@@ -21,6 +22,7 @@
     "scandit-web-datacapture-core": "^6.19.8"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
