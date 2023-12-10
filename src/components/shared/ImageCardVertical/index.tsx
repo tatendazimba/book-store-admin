@@ -1,6 +1,7 @@
-import { AspectRatio, Box, Card, CardContent, Typography } from "@mui/joy";
+import { AspectRatio, Box, Card, CardContent, Stack, Typography } from "@mui/joy";
 import Image from "next/image";
 import placeholderImage from "@/assets/images/placeholder.jpg";
+import { RichText } from "../RichText";
 
 type Props = {
     title: string,
@@ -12,9 +13,16 @@ export const ImageCardVertical: React.FC<Props> = props => {
     const { title, description, imageUrl } = props;
 
     return (
-        <Card>
+        <Card
+            sx={{
+                height: '100%',
+            }}
+        >
             <AspectRatio
                 ratio={9/16}
+                sx={{
+                    p: 0.5,
+                }}
             >
                 <Image
                     fill
@@ -28,20 +36,27 @@ export const ImageCardVertical: React.FC<Props> = props => {
             </AspectRatio>
 
             <CardContent>
-                <Box>
+                <Stack>
                     <Typography
                         level="title-lg"
                     >
-                        {title}
+                        <RichText
+                            truncateAfterLine={2}
+                        >
+                            {title}
+                        </RichText>
                     </Typography>
 
                     <Typography
                         level="body-sm"
-                        noWrap
                     >
-                        {description}
+                        <RichText
+                            truncateAfterLine={3}
+                        >
+                            {description}
+                        </RichText>
                     </Typography>
-                </Box>
+                </Stack>
             </CardContent>
         </Card>
     )
