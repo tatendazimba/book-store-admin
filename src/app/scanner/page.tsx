@@ -24,7 +24,11 @@ export default function Scanner() {
                 <Box
                     className={styles.search_container}
                 >
-                    <SearchContainer searchValue={barcode}>
+                    <SearchContainer
+                        key={barcode}
+                        searchValue={barcode}
+                        onChange={onFound}
+                    >
                         <Search value={barcode} key={barcode}/>
                     </SearchContainer>
                 </Box>
