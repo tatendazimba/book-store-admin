@@ -1,7 +1,7 @@
 "use client";
-import { FC, useEffect, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 
-import { Box, Stack, Typography } from "@mui/joy";
+import { Box, Button, Stack, Typography } from "@mui/joy";
 
 import * as SDCCore from "scandit-web-datacapture-core";
 import * as SDCBarcode from "scandit-web-datacapture-barcode";
@@ -18,17 +18,21 @@ export const ScanditScanner: FC<Props> = (props) => {
 
   const dataViewRef = useRef<HTMLElement>(null);
 
+  const [cameraStatus, setCameraStatus] = useState<'on' | 'off' | 'loading'>('loading');
+
   const barcodeCaptureListener = {
     didScan: async (barcodeCapture: SDCBarcode.BarcodeCapture, session: SDCBarcode.BarcodeCaptureSession) => {
       const recognizedBarcodes = session.newlyRecognizedBarcodes;
       const [barcode] = recognizedBarcodes;
       let barcodeValue = barcode.data;
+      console.log('barcodeValue', barcodeValue);
 
       onFound(barcodeValue as string);
 
       // disable scanning
       await barcodeCapture.setEnabled(false);
       await barcodeCapture.context?.frameSource?.switchToDesiredState(SDCCore.FrameSourceState.Off);
+      setCameraStatus('off');
     }
   };
 
@@ -96,6 +100,7 @@ export const ScanditScanner: FC<Props> = (props) => {
   }
 
   const configureScanner = async (): Promise<void> => {
+    setCameraStatus('loading');
     // TODO this is a slow process and should be moved out of this component
     await initialiseScanner();
 
@@ -113,6 +118,7 @@ export const ScanditScanner: FC<Props> = (props) => {
     await createView(barcodeCapture, context, canvasElement as HTMLElement);
 
     await switchOnCamera(camera);
+    setCameraStatus('on');
   };
 
   const switchOnCamera = async (camera: SDCCore.Camera) => {
@@ -121,7 +127,6 @@ export const ScanditScanner: FC<Props> = (props) => {
 
   useEffect(() => {
     const setUpScanner = async (): Promise<void> => {
-      console.log('setUpScanner')
       await configureScanner();
     };
 
@@ -151,6 +156,34 @@ export const ScanditScanner: FC<Props> = (props) => {
           </Typography>
         </Stack>
       </Box>
+
+      {
+        cameraStatus === 'off' &&
+        <Box
+          className={styles.canvas_container}
+        >
+          <Stack
+            alignItems={'center'}
+            justifyContent={'center'}
+            sx={{
+              height: '100%',
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={async () => {
+                await configureScanner();
+              }}
+              sx={{
+                color: 'white',
+                borderColor: 'white'
+              }}
+            >
+              Start Scanner
+            </Button>
+          </Stack>
+        </Box>
+      }
     </Box>
   )
 }
