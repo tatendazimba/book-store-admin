@@ -9,6 +9,7 @@ interface Props extends PropsWithChildren {
     onSearch?: () => void,
     onFound?: () => void,
     onNotFound?: () => void,
+    onChange?: (value: string) => void,
     searchValue?: string,
     children: ReactElement,
 }
@@ -16,25 +17,23 @@ interface Props extends PropsWithChildren {
 type LoadingStates = 'idle' | 'pending' | 'complete' | 'error';
 
 export const SearchContainer: FC<Props> = (props) => {
-    const { searchValue, children } = props;
+    const { searchValue, children, onChange } = props;
 
     const abortControllerRef = useRef<AbortController | null>(null);
-    const [searchResults, setSearchResults] = useState<Book[]>([]);
+    const [searchResults, setSearchResults] = useState<Book[] | null>([]);
     const [searching, setSearching] = useState<LoadingStates>('idle');
 
     useEffect(() => {
+        if (searchValue) {
+            search(searchValue);
+        }
+
         return () => {
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
             }
         };
     }, []);
-
-    useEffect(() => {
-        if (searchValue) {
-            search(searchValue);
-        }
-    }, [searchValue]);
 
     const search = async (value: string) => {
         try {
@@ -92,14 +91,18 @@ export const SearchContainer: FC<Props> = (props) => {
         }
     }
 
-    const onChange = async (value: string) => {
+    const handleChange = async (value: string) => {
         search(value);
+
+        if (onChange) {
+            onChange(value);
+        }
     }
 
     return (
         <Box>
             {
-                cloneElement(children, { onChange })
+                cloneElement(children, { onChange: handleChange })
             }
 
             <Grid container>
