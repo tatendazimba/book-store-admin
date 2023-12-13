@@ -2,10 +2,10 @@ version: '3'
 
 services:
   next-app:
-    container_name: store-dashboard
+    container_name: store_dashboard_next_app
     build:
       context: .
-      dockerfile: Dockerfile.local
+      dockerfile: docker/next/Dockerfile.local
     env_file:
       - .env.local
     volumes:
@@ -16,6 +16,74 @@ services:
       - 3000:3000
     networks:
       - book_bar_network
+
+  nginx:
+    container_name: store_dashboard_nginx
+    depends_on:
+      - directus
+    restart: always
+    build:
+      dockerfile: Dockerfile.local
+      context: docker/nginx
+    ports:
+      - "9000:80"
+    networks:
+      - book_bar_network
+
+  database:
+    container_name: store_dashboard_database
+    image: postgis/postgis:13-3.4-alpine
+    volumes:
+      - ./data/database:/var/lib/postgresql/data
+    restart: 'unless-stopped'
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_ROOT_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    networks:
+      - book_bar_network
+  
+  cache:
+    container_name: store_dashboard_cache
+    image: redis:6.2-alpine
+    restart: 'unless-stopped'
+    networks:
+      - book_bar_network
+    ports:
+      - 6379:6379
+
+  directus:
+    container_name: store_dashboard_directus
+    image: directus/directus:10.8.2
+    restart: 'unless-stopped'
+    networks:
+      - book_bar_network
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+    depends_on:
+      - cache
+      - database
+    environment:
+      KEY: ${KEY}
+      SECRET: ${SECRET}
+
+      DB_CLIENT: ${DB_CLIENT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_ROOT_PASSWORD}
+
+      CACHE_ENABLED: "${CACHE_ENABLED}"
+      CACHE_STORE: ${CACHE_STORE}
+      
+      REDIS: ${CACHE_REDIS}
+
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       
 networks:
   book_bar_network:
